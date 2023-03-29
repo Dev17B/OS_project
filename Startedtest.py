@@ -21,7 +21,7 @@ def fcfs(Task, switchT):                        # defining a function named fcfs
         if currentT < process['arrival_time']:  # in readings, if current time is smaller than process then its arrival time
             currentT = process['arrival_time']  # or in readings, if current time is equals to process then its also arrival time
         schedule.append(process['number'])      # The append will add the process arrival time at the end of the list as number
-        currentT += process['burst_time']       # it will add the value to an currentT variable and assign the new value back to the same process as burst_time. there is no context switch time after the last process.
+        currentT += process['burst_time'] + switchT # it will add the value to an currentT variable and assign the new value back to the same process as burst_time. there is no context switch time after the last process.
     return schedule                             # return statement for output
 
 # Round Robin scheduling algorithm
@@ -97,122 +97,116 @@ def main():                                          # Initialize GUI, defining 
     root.title("Process Scheduler")                  # the title 
     root.geometry("500x500")                         # the size
     algorithm_label = tk.Label(root, text="Select Algorithm:")    # Create widgets
-    algorithm_label.pack()                                                # 
+    algorithm_label.pack()                           # 
  
-    algorithm_var = tk.StringVar(root)                    #
-    algorithm_var.set("FCFS")                             #
+    algorithm_var = tk.StringVar(root)               #
+    algorithm_var.set("FCFS")                        #
 
     algorithm_menu = tk.OptionMenu(root, algorithm_var, "FCFS", "RR", "SJF", "SRT")    #
-    algorithm_menu.pack()                                 #
+    algorithm_menu.pack()                            #
 
-    file_label = tk.Label(root, text="Input File:")     #
-    file_label.pack()                                     #
+    file_label = tk.Label(root, text="Input File:")  #
+    file_label.pack()                                #
 
-    file_entry = tk.Entry(root)                         #
-    file_entry.pack()                                     #
+    file_entry = tk.Entry(root)                      #
+    file_entry.pack()                                #
 
     context_switch_label = tk.Label(root, text="Context Switching Time:")   #
-    context_switch_label.pack()                           #
+    context_switch_label.pack()                      #
 
-    context_switch_entry = tk.Entry(root)     #
-    context_switch_entry.pack()                           #
+    context_switch_entry = tk.Entry(root)            #
+    context_switch_entry.pack()                      #
 
     quantum_label = tk.Label(root, text="Time Quantum (RR Only):")     #
-    quantum_label.pack()                                  #
+    quantum_label.pack()                             #
 
     quantum_entry = tk.Entry(root)                   #
-    quantum_entry.pack()                                  #
+    quantum_entry.pack()                             #
 
-    output_label = tk.Label(root, text="Output:")     #
-    output_label.pack()                                   #
+    output_label = tk.Label(root, text="Output:")    #
+    output_label.pack()                              #
  
-    output_text = tk.Text(root, height=20)            #
-    output_text.pack()                                    #
+    output_text = tk.Text(root, height=20)           #
+    output_text.pack()                               #
 
-    def run_scheduler():
-        # Get inputs
-        input_file = file_entry.get()
-        algorithm = algorithm_var.get()
-        switchT = int(context_switch_entry.get())
-        time_quantum = int(quantum_entry.get()) if algorithm == "RR" else None
+    def run_scheduler():                             # defining a function named run_scheduler that takes no argument.
+        input_file = file_entry.get()                # getting  a improt file as a file entry
+        algorithm = algorithm_var.get()              # getting  a algorithm as a algorithm_var
+        switchT = int(context_switch_entry.get())    # getting  a switchT as intager for context_switch_entry
+        time_quantum = int(quantum_entry.get()) if algorithm == "RR" else None  # if the selected algorithm is RR then get time_quantum as a intager for quantum_entry
+        Task = Task(input_file)                      # Loading processes from file
 
-        # Load processes from file
-        Task = Task(input_file)
+        if algorithm == "FCFS":                         # if the selected algorithm is FCFS then,
+            schedule = fcfs(Task, switchT)              # run schedule as fcfs with its two argument Task, switchT
+        # elif algorithm == "RR":                       # if the selected algorithm is RR then,
+        #     schedule = rr(Task, switchT, time_quantum)# run schedule as RR with its three argument Task, switchT and time_quantum
+        # elif algorithm == "SJF":                      # if the selected algorithm is SJF then,
+        #     schedule = sjf(Task, switchT)             # run schedule as SJF with its two argument Task, switchT
+        elif algorithm == "SRT":                        # if the selected algorithm is SRT then,
+            schedule = srt(Task, switchT)               # run schedule as SRT with its two argument Task, switchT
+        
+        output_text.delete("1.0", 'END')                   # Display output
+        for process in schedule:                           # for loop with the variable process in order to iterate through all of the processes in schedule.
+            output_text.insert('END', str(process) + "\n") # it inserts "END" at the end of each line in output_text, where it will display the process's output.
 
-        # Schedule Task using selected algorithm
-        if algorithm == "FCFS":
-            schedule = fcfs(Task, switchT)
-        # elif algorithm == "RR":
-        #     schedule = rr(Task, switchT, time_quantum)
-        # elif algorithm == "SJF":
-        #     schedule = sjf(Task, switchT)
-        elif algorithm == "SRT":
-            schedule = srt(Task, switchT)
-
-        # Display output
-        output_text.delete("1.0", 'END')
-        for process in schedule:
-            output_text.insert('END', str(process) + "\n")
-
-    # Add run button
-    run_button = run_button(root, text="Run", command=run_scheduler)
-    run_button.pack()
-    root.mainloop()
+    run_button = run_button(root, text="Run", command=run_scheduler) # Adding run button
+    run_button.pack()                                     # it organizes widgets in horizontal and vertical boxes
+    root.mainloop()                                       # create commands that are run on each process using root's mainloop() function.
 
 # The interface -------------------------------------------------------------------------------------------------------------
-class Application(tk.Frame):                        #
-    def __init__(self, master=None):                #
-        super().__init__(master)                    #
-        self.master = master                        #
-        self.pack()                                 #
-        self.create_widgets()                       #
+class Application(tk.Frame):                        # adding Application class for tkinter
+    def __init__(self, master=None):                # initializing the application object with a master widget.
+        super().__init__(master)                    # using super() function to call the parent class's __init__ method, it sets up the frame and creates widgets.
+        self.master = master                        # assigning self.master equals to master
+        self.pack()                                 # it organizes widgets in horizontal and vertical boxes
+        self.create_widgets()                       # assigning create_widgets to self parameter
 
-    def create_widgets(self):
-        self.input_label = tk.Label(self, text="Input File:")  # Label for input file
-        self.input_label.grid(row=0, column=0)              #
+    def create_widgets(self):                                 # defining a function named create_widgets that takes one argument self.
+        self.input_label = tk.Label(self, text="Input File:") # Label for input file
+        self.input_label.grid(row=0, column=0)                # giving size 0 for the row and column both
 
-        self.input_path = tk.Entry(self)                    # Entry field for input file path
-        self.input_path.grid(row=0, column=1)               #
+        self.input_path = tk.Entry(self)                      # Entry field for input file path
+        self.input_path.grid(row=0, column=1)                 # giving size 0 and 1 for the row and column 
 
         self.input_button = tk.Button(self, text="Browse", command=self.browse_input_file)   # Button to select input file
-        self.input_button.grid(row=0, column=2)             #
+        self.input_button.grid(row=0, column=2)               # giving size 0 and 2 for the row and column 
 
         self.algorithm_label = tk.Label(self, text="Scheduling Algorithm:")   # Label for scheduling algorithm 
-        self.algorithm_label.grid(row=1, column=0)          #
+        self.algorithm_label.grid(row=1, column=0)            # giving size 1 and 0 for the row and column 
 
-        self.algorithm_var = tk.StringVar()                 # Dropdown menu for scheduling algorithm
-        self.algorithm_options = ["First Come First Serve", "Round Robin", "Shortest Job First", "Shortest Remaining Time"]
+        self.algorithm_var = tk.StringVar()                   # Dropdown menu for scheduling algorithm
+        self.algorithm_options = ["First Come First Serve", "Round Robin", "Shortest Job First", "Shortest Remaining Time"] # Label for selecting scheduling algorithm 
         self.algorithm_dropdown = tk.OptionMenu(self, self.algorithm_var, *self.algorithm_options)
-        self.algorithm_dropdown.grid(row=1, column=1)
+        self.algorithm_dropdown.grid(row=1, column=1)         # giving size 1 for the row and column 
 
         self.context_label = tk.Label(self, text="Context Switching Time:")   # Label for context switching time
-        self.context_label.grid(row=2, column=0)            #
+        self.context_label.grid(row=2, column=0)              # giving size 2 and 0 for the row and column 
 
-        self.context_time = tk.Entry(self)                  # Entry field for context switching time
-        self.context_time.grid(row=2, column=1)             #
+        self.context_time = tk.Entry(self)                    # Entry field for context switching time
+        self.context_time.grid(row=2, column=1)               # giving size 2 and 1 for the row and column 
 
         self.quantum_label = tk.Label(self, text="Time Quantum:")   # Label for time quantum
-        self.quantum_label.grid(row=3, column=0)            #
+        self.quantum_label.grid(row=3, column=0)              # giving size 3 and 0 for the row and column 
 
-        self.quantum_time = tk.Entry(self)                  # Entry field for time quantum
-        self.quantum_time.grid(row=3, column=1)             #
+        self.quantum_time = tk.Entry(self)                    # Entry field for time quantum
+        self.quantum_time.grid(row=3, column=1)               # giving size 3 and 1 for the row and column 
 
-        self.schedule_button = tk.Button(self, text="Schedule", command=self.schedule_processes)    # Button to start scheduling
-        self.schedule_button.grid(row=4, column=1)          #
-
-    def browse_input_file(self):                            # Open file dialog to select input file
-        file_path = filedialog.askopenfilename()            #
-        self.input_path.delete(0, tk.END)                   #
-        self.input_path.insert(0, file_path)                #
-
-    def schedule_processes(self):                           # Retrieve user input values and start scheduling
-        file_path = self.input_path.get()                   #
-        algorithm = self.algorithm_var.get()                #
-        context_time = float(self.context_time.get())       #
-        quantum_time = float(self.quantum_time.get())       #
+        self.schedule_button = tk.Button(self, text="Schedule", command=self.schedule_processes)   # Button to start scheduling
+        self.schedule_button.grid(row=4, column=1)            # giving size 4 and 1 for the row and column 
+  
+    def browse_input_file(self):                              # defining a function named browse_input_file that takes no argument.
+        file_path = filedialog.askopenfilename()              # Open file dialog to select input file
+        self.input_path.delete(0, tk.END)                     # it delets the text from the input file and,
+        self.input_path.insert(0, file_path)                  # It inserts the text into the file_path variable.
+#Retrieve user input values and start scheduling
+    def schedule_processes(self):                           #  defining a function named schedule_processes that takes one argument self.
+        file_path = self.input_path.get()                   # retrieving the input path from the user.
+        algorithm = self.algorithm_var.get()                # retrieving the input path from selected algorithms
+        context_time = float(self.context_time.get())       # gets a value for algorithm and context time.
+        quantum_time = float(self.quantum_time.get())       # it calculates quantum time by multiplying the context time with the quantum_time variable.
         # Call scheduling functions here with the provided inputs
 
-root = tk.Tk()                                              #
-app = Application(master=root)                              #
-app.mainloop()                                              #
+root = tk.Tk()                                              # assigning root equals to tk.TK with no argument
+app = Application(master=root)                              # Creating an application object and given to the master window (root) as its parent.
+app.mainloop()                                              # main loop of the program is then started inside the method mainloop() which will be executed repeatedly until the user closes it.
 
